@@ -1,24 +1,29 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
 
 group = "me.cjcrafter"
-version = "3.7.4"
+version = "3.7.3"
 
 plugins {
     `java-library`
-    id("com.gradleup.shadow") version "8.3.3"
+    id("io.github.goooler.shadow") version "8.1.7"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("xyz.jpenilla.run-paper")
+//    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
 }
+
+//paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
+
 
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
     main = "me.cjcrafter.biomemanager.BiomeManager"
     name = "BiomeManager"
-    apiVersion = "1.16"
+    apiVersion = "1.21.4"
     load = STARTUP // required to register biomes before world load
     foliaSupported = true
 
-    authors = listOf("CJCrafter")
-    depend = listOf("ProtocolLib", "MechanicsCore")
+    authors = listOf("AlexDev_", "CJCrafter")
+    depend = listOf("ProtocolLib")
     softDepend = listOf("TerraformGenerator")  // softdepend on plugins that register custom biomes so we can modify them
     loadBefore = listOf("WorldEdit")
 }
@@ -28,18 +33,21 @@ repositories {
 }
 
 dependencies {
+//    paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
     implementation(project(":"))
-    implementation(project(":Biome_1_19_R3", "reobf"))
-    implementation(project(":Biome_1_20_R1", "reobf"))
-    implementation(project(":Biome_1_20_R2", "reobf"))
-    implementation(project(":Biome_1_20_R3", "reobf"))
-    implementation(project(":Biome_1_20_R4", "reobf"))
-    implementation(project(":Biome_1_21_R1", "reobf"))
+//    implementation(project(":Biome_1_21_R1", "reobf"))
+    implementation(project(":Biome_1_21_4"))
 }
 
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
     }
 }
 
@@ -49,21 +57,22 @@ tasks.shadowJar {
 
     dependencies {
         include(project(":"))
-        include(project(":Biome_1_19_R3"))
-        include(project(":Biome_1_20_R1"))
-        include(project(":Biome_1_20_R2"))
-        include(project(":Biome_1_20_R3"))
-        include(project(":Biome_1_20_R4"))
-        include(project(":Biome_1_21_R1"))
+//        include(project(":Biome_1_21_R1"))
+        include(project(":Biome_1_21_4"))
 
-        relocate("org.bstats", "com.cjcrafter.biomemanager.lib.bstats") {
+        relocate("org.bstats", "me.cjcrafter.biomemanager.lib.bstats") {
             include(dependency("org.bstats:"))
         }
     }
 
-    relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler")
-
     // This doesn't actually include any dependencies, this relocates all references
     // to the mechanics core lib.
-    relocate("net.kyori", "me.deecaad.core.lib")
+//    relocate("net.kyori", "me.deecaad.core.lib")
+}
+
+tasks.runServer {
+    // Configure the Minecraft version for our task.
+    // This is the only required configuration besides applying the plugin.
+    // Your plugin's jar (or shadowJar if present) will be used automatically.
+    minecraftVersion("1.21.4")
 }
